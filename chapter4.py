@@ -61,7 +61,7 @@ class PolicyIteration:
             qsa += p * (r + self.gamma * self.v[next_state] * (1 - done))
             # 本章环境比较特殊,奖励和下一个状态有关,所以需要和状态转移概率相乘
           qsa_list.append(self.pi[s][a] * qsa)
-        new_v[s] = sum(qsa_list)  # 状态价值函数和动作价值函数之间的关系
+        new_v[s] = sum(qsa_list)  # 状态价值函数和动作价值函数之间的关系，见3.4.3 动作价值函数
         max_diff = max(max_diff, abs(new_v[s] - self.v[s]))
       self.v = new_v
       if max_diff < self.theta: break  # 满足收敛条件,退出评估迭代
@@ -170,6 +170,7 @@ class ValueIteration:
       # 让这些动作均分概率
       self.pi[s] = [1 / cntq if q == maxq else 0 for q in qsa_list]
 
+
 def test_ValueIteration():
   env = CliffWalkingEnv()
   action_meaning = ['^', 'v', '<', '>']
@@ -220,7 +221,7 @@ def test_FrozenLake():
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-  test_PolicyIteration()
+  # test_PolicyIteration()
   # test_ValueIteration()
-  # test_FrozenLake()
+  test_FrozenLake()
 

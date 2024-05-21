@@ -58,7 +58,7 @@ class Sarsa:
 
   def update(self, s0, a0, r, s1, a1):
     td_error = r + self.gamma * self.Q_table[s1, a1] - self.Q_table[s0, a0]
-    self.Q_table[s0, a0] += self.alpha * td_error
+    self.Q_table[s0, a0] += self.alpha * td_error # 直接用时序差分算法来估计动作价值函数Q
 
 
 def print_agent(agent, env, action_meaning, disaster=[], end=[]):
@@ -93,14 +93,14 @@ def test_Sarsa():
     with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
       for i_episode in range(int(num_episodes / 10)):  # 每个进度条的序列数
         episode_return = 0
-        state = env.reset()
-        action = agent.take_action(state)
+        state = env.reset() # 得到初始状态s
+        action = agent.take_action(state) # 用epsilon-贪婪策略根据Q选择当前状态s下的动作a
         done = False
         while not done:
-          next_state, reward, done = env.step(action)
-          next_action = agent.take_action(next_state)
+          next_state, reward, done = env.step(action) # 得到环境反馈的r，s'
+          next_action = agent.take_action(next_state)  # 用epsilon-贪婪策略根据Q选择当前状态s'下的动作a'
           episode_return += reward  # 这里回报的计算不进行折扣因子衰减
-          agent.update(state, action, reward, next_state, next_action)
+          agent.update(state, action, reward, next_state, next_action)  # 直接用时序差分算法来估计动作价值函数Q
           state = next_state
           action = next_action
         return_list.append(episode_return)
@@ -264,11 +264,11 @@ def test_QLearning():
     with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
       for i_episode in range(int(num_episodes / 10)):  # 每个进度条的序列数
         episode_return = 0
-        state = env.reset()
+        state = env.reset() # 得到初始状态s
         done = False
         while not done:
-          action = agent.take_action(state)
-          next_state, reward, done = env.step(action)
+          action = agent.take_action(state) # 用epsilon-贪婪策略根据Q选择当前状态s下的动作a
+          next_state, reward, done = env.step(action) # 得到环境反馈的r，s'
           episode_return += reward  # 这里回报的计算不进行折扣因子衰减
           agent.update(state, action, reward, next_state)
           state = next_state
@@ -292,5 +292,5 @@ def test_QLearning():
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
   # test_Sarsa()
-  # test_nstep_Sarsa()
-  test_QLearning()
+  test_nstep_Sarsa()
+  # test_QLearning()

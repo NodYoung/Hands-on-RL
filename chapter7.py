@@ -79,11 +79,8 @@ class DQN:
                          dtype=torch.float).view(-1, 1).to(self.device)
 
     q_values = self.q_net(states).gather(1, actions)  # Q值
-    # 下个状态的最大Q值
-    max_next_q_values = self.target_q_net(next_states).max(1)[0].view(
-        -1, 1)
-    q_targets = rewards + self.gamma * max_next_q_values * (1 - dones
-                                                            )  # TD误差目标
+    max_next_q_values = self.target_q_net(next_states).max(1)[0].view(-1, 1)  # 下个状态的最大Q值
+    q_targets = rewards + self.gamma * max_next_q_values * (1 - dones)  # TD误差目标
     dqn_loss = torch.mean(F.mse_loss(q_values, q_targets))  # 均方误差损失函数
     self.optimizer.zero_grad()  # PyTorch中默认梯度会累积,这里需要显式将梯度置为0
     dqn_loss.backward()  # 反向传播更新参数
@@ -106,7 +103,7 @@ def test_DQN():
   batch_size = 64
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-  env_name = 'CartPole-v0'
+  env_name = 'CartPole-v1'
   env = gym.make(env_name)
   random.seed(0)
   np.random.seed(0)
@@ -123,17 +120,17 @@ def test_DQN():
     with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
       for i_episode in range(int(num_episodes / 10)):
         episode_return = 0
-        state = env.reset()
+        state, _ = env.reset()   # 获取环境初始状态s_1
         done = False
         while not done:
-          action = agent.take_action(state)
-          next_state, reward, done, _ = env.step(action)
-          replay_buffer.add(state, action, reward, next_state, done)
+          action = agent.take_action(state) # 根据当前网络Q_w(s,a)，以epsilon-贪婪策略选择动作a_t
+          next_state, reward, done, _, _ = env.step(action) # 执行动作a_t，获得回报r_t，环境状态变为s_t+1
+          replay_buffer.add(state, action, reward, next_state, done)  # 将(s_t, a_t, r_t, s_t+1)存储到回放池中
           state = next_state
           episode_return += reward
           # 当buffer数据的数量超过一定值后,才进行Q网络训练
           if replay_buffer.size() > minimal_size:
-            b_s, b_a, b_r, b_ns, b_d = replay_buffer.sample(batch_size)
+            b_s, b_a, b_r, b_ns, b_d = replay_buffer.sample(batch_size) # 从回放池中采样N个数据
             transition_dict = {
                 'states': b_s,
                 'actions': b_a,

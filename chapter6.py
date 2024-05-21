@@ -57,12 +57,12 @@ class DynaQ:
     self.Q_table[s0, a0] += self.alpha * td_error
 
   def update(self, s0, a0, r, s1):
-    self.q_learning(s0, a0, r, s1)
+    self.q_learning(s0, a0, r, s1)  #q_learning的方式更新动作价值函数
     self.model[(s0, a0)] = r, s1  # 将数据添加到模型中
     for _ in range(self.n_planning):  # Q-planning循环
-      # 随机选择曾经遇到过的状态动作对
+      # 随机选择曾经遇到过的状态动作对，及转移后的状态s'和奖励s
       (s, a), (r, s_) = random.choice(list(self.model.items()))
-      self.q_learning(s, a, r, s_)
+      self.q_learning(s, a, r, s_)  # 根据模拟数据(s, a, r, s')用q_learning的更新方式来更新动作价值函数
 
 
 def DynaQ_CliffWalking(n_planning):
@@ -81,11 +81,11 @@ def DynaQ_CliffWalking(n_planning):
     with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
       for i_episode in range(int(num_episodes / 10)):  # 每个进度条的序列数
         episode_return = 0
-        state = env.reset()
+        state = env.reset() # 得到初始状态s
         done = False
         while not done:
-          action = agent.take_action(state)
-          next_state, reward, done = env.step(action)
+          action = agent.take_action(state) # 用epsilon-贪婪策略根据Q选择当前状态s下的动作a
+          next_state, reward, done = env.step(action) # 得到环境反馈的r，s'
           episode_return += reward  # 这里回报的计算不进行折扣因子衰减
           agent.update(state, action, reward, next_state)
           state = next_state
