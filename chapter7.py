@@ -1,6 +1,6 @@
 import logging
 import random
-import gym
+import gymnasium as gym
 import numpy as np
 import collections
 from tqdm import tqdm
@@ -103,8 +103,8 @@ def test_DQN():
   batch_size = 64
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-  env_name = 'CartPole-v1'
-  env = gym.make(env_name)
+  env_name = 'CartPole-v0'
+  env = gym.make(env_name, render_mode="human")
   random.seed(0)
   np.random.seed(0)
   # env.seed(0)
@@ -120,11 +120,12 @@ def test_DQN():
     with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
       for i_episode in range(int(num_episodes / 10)):
         episode_return = 0
-        state, _ = env.reset()   # 获取环境初始状态s_1
+        state, info = env.reset(seed=0)   # 获取环境初始状态s_1
         done = False
         while not done:
           action = agent.take_action(state) # 根据当前网络Q_w(s,a)，以epsilon-贪婪策略选择动作a_t
-          next_state, reward, done, _, _ = env.step(action) # 执行动作a_t，获得回报r_t，环境状态变为s_t+1
+          next_state, reward, terminated, truncated, info = env.step(action) # 执行动作a_t，获得回报r_t，环境状态变为s_t+1
+          done = terminated or truncated
           replay_buffer.add(state, action, reward, next_state, done)  # 将(s_t, a_t, r_t, s_t+1)存储到回放池中
           state = next_state
           episode_return += reward

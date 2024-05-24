@@ -1,7 +1,7 @@
 import logging
 import torch
 import numpy as np
-import gym
+import gymnasium as gym
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import rl_utils
@@ -145,7 +145,7 @@ class TRPO:
     self.policy_learn(states, actions, old_action_dists, old_log_probs, advantage)
 
 
-def test_TRPO():
+def use_TRPO():
   num_episodes = 500
   hidden_dim = 128
   gamma = 0.98
@@ -156,8 +156,8 @@ def test_TRPO():
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
   env_name = 'CartPole-v0'
-  env = gym.make(env_name)
-  env.seed(0)
+  env = gym.make(env_name, render_mode="human")
+  env.reset(seed=0)
   torch.manual_seed(0)
   agent = TRPO(hidden_dim, env.observation_space, env.action_space, lmbda, kl_constraint, alpha, critic_lr, gamma, device)
   return_list = rl_utils.train_on_policy_agent(env, agent, num_episodes)
@@ -294,7 +294,7 @@ class TRPOContinuous:
     self.policy_learn(states, actions, old_action_dists, old_log_probs, advantage)
 
 
-def test_TRPOContinuous():
+def use_TRPOContinuous():
   num_episodes = 2000
   hidden_dim = 128
   gamma = 0.9
@@ -304,9 +304,9 @@ def test_TRPOContinuous():
   alpha = 0.5
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-  env_name = 'Pendulum-v0'
-  env = gym.make(env_name)
-  env.seed(0)
+  env_name = 'Pendulum-v1'
+  env = gym.make(env_name, render_mode="human")
+  env.reset(seed=0)
   torch.manual_seed(0)
   agent = TRPOContinuous(hidden_dim, env.observation_space, env.action_space,
                          lmbda, kl_constraint, alpha, critic_lr, gamma, device)
@@ -329,4 +329,5 @@ def test_TRPOContinuous():
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-
+  # use_TRPO()
+  use_TRPOContinuous()

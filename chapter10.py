@@ -1,5 +1,5 @@
 import logging
-import gym
+import gymnasium as gym
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -78,7 +78,7 @@ def test_ActorCritic():
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
   env_name = 'CartPole-v0'
-  env = gym.make(env_name)
+  env = gym.make(env_name, render_mode="human")
   env.reset(seed=0)
   torch.manual_seed(0)
   state_dim = env.observation_space.shape[0]

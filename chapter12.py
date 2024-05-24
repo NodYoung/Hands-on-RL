@@ -1,5 +1,5 @@
 import logging
-import gym
+import gymnasium as gym
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -76,7 +76,7 @@ class PPO:
       self.critic_optimizer.step()
 
 
-def test_PPO():
+def use_PPO():
   actor_lr = 1e-3
   critic_lr = 1e-2
   num_episodes = 500
@@ -88,8 +88,8 @@ def test_PPO():
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
   env_name = 'CartPole-v0'
-  env = gym.make(env_name)
-  env.seed(0)
+  env = gym.make(env_name, render_mode="human")
+  env.reset(seed=0)
   torch.manual_seed(0)
   state_dim = env.observation_space.shape[0]
   action_dim = env.action_space.n
@@ -179,7 +179,7 @@ class PPOContinuous:
       self.critic_optimizer.step()
 
 
-def test_PPOContinuous():
+def use_PPOContinuous():
   actor_lr = 1e-4
   critic_lr = 5e-3
   num_episodes = 2000
@@ -190,8 +190,8 @@ def test_PPOContinuous():
   eps = 0.2
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-  env_name = 'Pendulum-v0'
-  env = gym.make(env_name)
+  env_name = 'Pendulum-v1'
+  env = gym.make(env_name, render_mode="human")
   env.reset(seed=0)
   torch.manual_seed(0)
   state_dim = env.observation_space.shape[0]
@@ -218,3 +218,5 @@ def test_PPOContinuous():
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+  use_PPO()
+  # use_PPOContinuous()

@@ -1,6 +1,6 @@
 import logging
 import random
-import gym
+import gymnasium as gym
 import numpy as np
 from tqdm import tqdm
 import torch
@@ -88,7 +88,7 @@ class DDPG:
     self.soft_update(self.actor, self.target_actor)  # 软更新策略网络
     self.soft_update(self.critic, self.target_critic)  # 软更新价值网络
 
-def test_DDPG():
+def use_DDPG():
   actor_lr = 3e-4
   critic_lr = 3e-3
   num_episodes = 200
@@ -101,11 +101,11 @@ def test_DDPG():
   sigma = 0.01  # 高斯噪声标准差
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
   
-  env_name = 'Pendulum-v0'
-  env = gym.make(env_name)
+  env_name = 'Pendulum-v1'
+  env = gym.make(env_name, render_mode="human")
   random.seed(0)
   np.random.seed(0)
-  env.seed(0)
+  env.reset(seed=0)
   torch.manual_seed(0)
   replay_buffer = rl_utils.ReplayBuffer(buffer_size)
   state_dim = env.observation_space.shape[0]
@@ -131,3 +131,4 @@ def test_DDPG():
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+  use_DDPG()

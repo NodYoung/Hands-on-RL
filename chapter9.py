@@ -1,5 +1,5 @@
 import logging
-import gym
+import gymnasium as gym
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -59,13 +59,12 @@ def test_REINFORCE():
   device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
   env_name = "CartPole-v0"
-  env = gym.make(env_name)
+  env = gym.make(env_name, render_mode="human")
   env.reset(seed=0)
   torch.manual_seed(0)
   state_dim = env.observation_space.shape[0]
   action_dim = env.action_space.n
-  agent = REINFORCE(state_dim, hidden_dim, action_dim, learning_rate, gamma,
-                    device)
+  agent = REINFORCE(state_dim, hidden_dim, action_dim, learning_rate, gamma, device)
 
   return_list = []
   for i in range(10):
@@ -73,11 +72,12 @@ def test_REINFORCE():
       for i_episode in range(int(num_episodes / 10)):
         episode_return = 0
         transition_dict = {'states': [], 'actions': [], 'next_states': [], 'rewards': [], 'dones': []}
-        state, _ = env.reset()
+        state, info = env.reset(seed=0)
         done = False
         while not done:
           action = agent.take_action(state)
-          next_state, reward, done, _, _ = env.step(action)
+          next_state, reward, terminated, truncated, info = env.step(action)
+          done = terminated or truncated
           transition_dict['states'].append(state)
           transition_dict['actions'].append(action)
           transition_dict['next_states'].append(next_state)
